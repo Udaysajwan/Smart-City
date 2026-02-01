@@ -1,0 +1,4 @@
+body { background:#f8f9fa; }
+.card { min-height:150px; }
+#adminPlaceholder { height:200px; background:#fff; border:1px dashed #ccc; display:flex; align-items:center; justify-content:center; }
+#insights { min-height:120px; }
