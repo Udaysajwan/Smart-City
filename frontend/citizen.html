@@ -6,124 +6,195 @@
     <title>Citizen Panel - Smart City</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
-                        brand: { 500: '#0ea5e9', 600: '#0284c7' }
+                        brand: {
+                            50: '#ecfdfb',
+                            100: '#ccfbf1',
+                            500: '#0f766e',
+                            600: '#115e59',
+                            700: '#0f4c46'
+                        }
+                    },
+                    fontFamily: {
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                        sans: ['"IBM Plex Sans"', 'sans-serif']
                     }
                 }
             }
         }
     </script>
 </head>
-<body class="bg-slate-50 font-sans text-slate-900">
+<body class="text-slate-900 font-sans antialiased">
+    <div class="min-h-screen bg-aurora relative overflow-hidden">
+        <div class="absolute inset-0 bg-grid opacity-30"></div>
 
-    <!-- Nav -->
-    <nav class="fixed w-full z-50 glass">
-        <div class="max-w-7xl mx-auto px-4">
-            <div class="flex justify-between items-center h-20">
-                <a href="index.html" class="flex items-center gap-2">
-                    <div class="bg-green-600 p-1.5 rounded-lg text-white">
-                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+        <!-- Nav -->
+        <nav class="fixed w-full z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="glass mt-4 rounded-2xl px-4 sm:px-6 py-3 flex items-center justify-between">
+                    <a href="index.html" class="flex items-center gap-2 focus-ring">
+                        <div class="bg-emerald-600 p-2 rounded-lg text-white shadow-lg shadow-emerald-500/30">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                        </div>
+                        <span class="font-display font-bold text-lg text-slate-800">SmartCity <span class="text-xs uppercase bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full ml-1">Citizen</span></span>
+                    </a>
+                    <div class="hidden md:flex space-x-6 text-sm font-medium">
+                        <a href="index.html" class="text-slate-500 hover:text-emerald-600 transition focus-ring">Home</a>
+                        <a href="admin.html" class="text-slate-500 hover:text-emerald-600 transition focus-ring">Admin</a>
+                        <a href="insights.html" class="text-slate-500 hover:text-emerald-600 transition focus-ring">Insights</a>
                     </div>
-                    <span class="font-bold text-lg text-slate-800">SmartCity <span class="text-xs uppercase bg-green-100 text-green-700 px-2 py-0.5 rounded-full ml-1">Citizen</span></span>
-                </a>
-                <div class="flex space-x-6 text-sm font-medium">
-                    <a href="index.html" class="text-slate-500 hover:text-green-600 transition">Home</a>
-                    <a href="admin.html" class="text-slate-500 hover:text-green-600 transition">Admin</a>
-                    <a href="insights.html" class="text-slate-500 hover:text-green-600 transition">Insights</a>
+                    <button id="mobileMenuButton" class="md:hidden text-slate-700 hover:text-emerald-600 focus-ring" aria-label="Toggle menu">
+                        <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="mobileMenu" class="md:hidden hidden mt-3 glass rounded-2xl px-4 py-4">
+                    <div class="flex flex-col space-y-3 text-sm font-medium">
+                        <a href="index.html" class="text-slate-600 hover:text-emerald-600 transition focus-ring">Home</a>
+                        <a href="admin.html" class="text-slate-600 hover:text-emerald-600 transition focus-ring">Admin</a>
+                        <a href="insights.html" class="text-slate-600 hover:text-emerald-600 transition focus-ring">Insights</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="pt-28 pb-12 px-4 max-w-3xl mx-auto">
-        
-        <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-bold text-slate-900">Report an Issue</h1>
-            <p class="text-slate-500 mt-2">Help us keep the city clean and safe by reporting problems.</p>
-        </div>
-
-        <!-- Form Card -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
-            <div class="bg-gradient-to-r from-green-500 to-emerald-600 px-8 py-6">
-                <div class="flex items-center text-white/90">
-                    <svg class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    <span class="font-semibold text-lg">New Report</span>
+        <div class="pt-32 pb-16 px-4 max-w-6xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-10">
+            <div>
+                <div class="mb-8">
+                    <h1 class="font-display text-3xl sm:text-4xl font-bold text-slate-900">Report an Issue</h1>
+                    <p class="text-slate-600 mt-2">Help keep the city safe and clean. Every report triggers a tracked response.</p>
+                    <div class="flex flex-wrap gap-3 mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
+                        <span class="px-3 py-1 rounded-full bg-white/80 border border-white/60">1 Describe</span>
+                        <span class="px-3 py-1 rounded-full bg-white/80 border border-white/60">2 Pin Location</span>
+                        <span class="px-3 py-1 rounded-full bg-white/80 border border-white/60">3 Submit</span>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="p-8">
-                <form id="reportForm" class="space-y-6">
-                    <div class="grid grid-cols-1 gap-6">
-                        <!-- Issue Type -->
-                        <div>
-                            <label for="issueType" class="block text-sm font-semibold text-slate-700 mb-2">Issue Type</label>
-                            <div class="relative">
-                                <select id="issueType" name="issueType" class="block w-full pl-4 pr-10 py-3 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-xl bg-slate-50 transition">
-                                    <option value="garbage">🗑️ Garbage Collection</option>
-                                    <option value="pothole">🕳️ Pothole / Road Damage</option>
-                                    <option value="traffic">🚦 Traffic Issue</option>
-                                    <option value="street_light">💡 Street Light Outage</option>
-                                    <option value="other">📝 Other</option>
-                                </select>
-                            </div>
-                        </div>
 
-                        <!-- Description -->
-                        <div>
-                            <label for="description" class="block text-sm font-semibold text-slate-700 mb-2">Description</label>
-                            <textarea id="description" name="description" rows="4" class="block w-full p-4 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-xl bg-slate-50 transition placeholder-slate-400" placeholder="Please describe the issue in detail..."></textarea>
+                <div class="bg-white/90 rounded-3xl shadow-2xl overflow-hidden border border-white/70">
+                    <div class="bg-gradient-to-r from-emerald-600 to-teal-600 px-8 py-6">
+                        <div class="flex items-center text-white/90">
+                            <svg class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            <span class="font-semibold text-lg">New Report</span>
                         </div>
+                    </div>
 
-                        <!-- File Upload -->
-                        <div>
-                            <label class="block text-sm font-semibold text-slate-700 mb-2">Upload Photo</label>
-                            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:border-green-500 hover:bg-green-50 transition cursor-pointer group relative">
-                                <div class="space-y-1 text-center">
-                                    <svg class="mx-auto h-12 w-12 text-slate-400 group-hover:text-green-500 transition" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    <div class="flex text-sm text-slate-600">
-                                        <label for="image" class="relative cursor-pointer rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none">
-                                            <span>Upload a file</span>
-                                            <input id="image" name="image" type="file" class="sr-only" accept="image/*">
-                                        </label>
-                                        <p class="pl-1">or drag and drop</p>
+                    <div class="p-8">
+                        <form id="reportForm" class="space-y-6">
+                            <div class="grid grid-cols-1 gap-6">
+                                <div>
+                                    <label for="issueType" class="block text-sm font-semibold text-slate-700 mb-2">Issue Type</label>
+                                    <div class="relative">
+                                        <select id="issueType" name="issueType" class="block w-full pl-4 pr-10 py-3 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-xl bg-slate-50 transition">
+                                            <option value="garbage">Garbage Collection</option>
+                                            <option value="pothole">Pothole or Road Damage</option>
+                                            <option value="traffic">Traffic Issue</option>
+                                            <option value="street_light">Street Light Outage</option>
+                                            <option value="other">Other</option>
+                                        </select>
                                     </div>
-                                    <p class="text-xs text-slate-500">PNG, JPG, GIF up to 10MB</p>
+                                    <p id="autoCategoryHint" class="text-xs text-emerald-600 mt-2 hidden">Auto-detected from description.</p>
+                                </div>
+
+                                <div>
+                                    <label for="description" class="block text-sm font-semibold text-slate-700 mb-2">Description</label>
+                                    <textarea id="description" name="description" rows="4" class="block w-full p-4 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-xl bg-slate-50 transition placeholder-slate-400" placeholder="Describe the issue, time, and nearby landmarks..."></textarea>
+                                </div>
+
+                                <div>
+                                    <label for="address" class="block text-sm font-semibold text-slate-700 mb-2">Address or Landmark</label>
+                                    <input id="address" name="address" type="text" class="block w-full p-4 text-base border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm rounded-xl bg-slate-50 transition placeholder-slate-400" placeholder="Street name, district, landmark" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Pin Location on Map</label>
+                                    <div id="citizenMap" class="h-64 w-full rounded-2xl border border-slate-200 shadow-sm bg-slate-100"></div>
+                                    <div class="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+                                        <button type="button" id="useMyLocation" class="px-3 py-2 rounded-full bg-emerald-100 text-emerald-700 font-semibold hover:bg-emerald-200 transition">Use my location</button>
+                                        <div>Lat: <span id="latValue">--</span> | Lng: <span id="lngValue">--</span></div>
+                                    </div>
+                                    <input type="hidden" id="lat" name="lat" />
+                                    <input type="hidden" id="lng" name="lng" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-semibold text-slate-700 mb-2">Upload Photo</label>
+                                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-slate-300 border-dashed rounded-xl hover:border-emerald-500 hover:bg-emerald-50/60 transition cursor-pointer group relative">
+                                        <div class="space-y-1 text-center">
+                                            <svg class="mx-auto h-12 w-12 text-slate-400 group-hover:text-emerald-500 transition" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                            <div class="flex text-sm text-slate-600 justify-center">
+                                                <label for="image" class="relative cursor-pointer rounded-md font-medium text-emerald-600 hover:text-emerald-500 focus-within:outline-none">
+                                                    <span>Upload a file</span>
+                                                    <input id="image" name="image" type="file" class="sr-only" accept="image/*">
+                                                </label>
+                                                <p class="pl-1">or drag and drop</p>
+                                            </div>
+                                            <p class="text-xs text-slate-500">PNG, JPG, GIF up to 10MB</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="pt-4">
-                        <button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition transform active:scale-95">
-                            Submit Report
-                        </button>
+                            <div class="pt-4">
+                                <button type="submit" class="w-full flex justify-center py-4 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition transform active:scale-95">
+                                    Submit Report
+                                </button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-            </div>
-        </div>
-        
-        <!-- Recent Reports Teaser -->
-        <div class="mt-12">
-            <h3 class="text-lg font-bold text-slate-800 mb-4 px-2">Recent Activity</h3>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-4 flex items-center gap-4 opacity-70">
-                <div class="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                 </div>
-                <div class="text-sm text-slate-500 italic">No recent reports to display.</div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-white/90 rounded-3xl border border-white/70 p-6 shadow-xl">
+                    <h3 class="font-display text-lg font-semibold text-slate-900">What happens next</h3>
+                    <ul class="mt-4 space-y-3 text-sm text-slate-600">
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 mt-2"></span>
+                            Your report is categorized and routed to the right team.
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-amber-500 mt-2"></span>
+                            Field staff confirm the issue and share progress updates.
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="w-2 h-2 rounded-full bg-sky-500 mt-2"></span>
+                            You receive a closure note once the task is resolved.
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="bg-white/90 rounded-3xl border border-white/70 p-6 shadow-xl">
+                    <h3 class="font-display text-lg font-semibold text-slate-900">Service pledge</h3>
+                    <p class="text-sm text-slate-600 mt-3">We aim to respond within 24 hours and resolve critical safety issues within 72 hours.</p>
+                    <div class="mt-4 flex items-center justify-between text-xs text-slate-500">
+                        <span>Current average</span>
+                        <span class="font-semibold text-emerald-600">18h 12m</span>
+                    </div>
+                </div>
+
+                <div class="bg-white/70 rounded-3xl border border-white/70 p-6 shadow-sm">
+                    <h3 class="font-display text-lg font-semibold text-slate-900 mb-4">Your recent reports</h3>
+                    <div id="recentReports" class="space-y-4 text-sm text-slate-600">
+                        <div class="text-slate-500 italic">No recent reports to display.</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
